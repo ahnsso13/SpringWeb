@@ -16,18 +16,17 @@
 	</select>
 	
 	<select id="getPrev" resultType="com.newlecture.webapp.entity.NoticeView">	
- 	select * from NoticeView where id &lt; cast(#{id} as unsigned) order by regDate desc limit 1
+ 		select * from NoticeView where id &lt; cast(#{id} as unsigned) order by regDate desc limit 1
 	</select>
 		
 	<select id="getNext" resultType="com.newlecture.webapp.entity.NoticeView">	
- 	select * from NoticeView where id &gt; cast(#{id} as unsigned) order by regDate asc limit 1
+ 		select * from NoticeView where id &gt; cast(#{id} as unsigned) order by regDate asc limit 1
 	</select>
 	
 	<select id="getNextId" resultType="String">	
-	select ifnull(max(cast(id as unsigned)), 0)+1 id from Notice
+		select ifnull(max(cast(id as unsigned)), 0)+1 id from Notice
 
 	</select>
-	
 	
 	
 	<insert id="insert" parameterType="com.newlecture.webapp.entity.Notice">

@@ -2,30 +2,100 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
-	
-	<!-- 데이터베이스 연결 집중화 -->
-	<bean name="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-		<property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-		<property name="url" value="jdbc:mysql://211.238.142.247/newlecture?autoReconnect=true&amp;useSSL=false&amp;useUnicode=true&amp;characterEncoding=utf8"/>
-		<property name="username" value="sist"/>
-		<property name="password" value="cclass"/>
-	</bean>
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
 
-	<bean name="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-	<property name="dataSource" ref="dataSource" />
-		<property name="mapperLocations" value="classpath:com/newlecture/webapp/dao/mybatis/mapper/*.xml"/>
-	</bean>
-	
-	<bean class="org.mybatis.spring.SqlSessionTemplate">
-		<constructor-arg index="0" ref="sqlSessionFactory"/>
-	</bean>
-	
-	
-	<!--  DAO 객체들-->
-	<bean class="com.newlecture.webapp.dao.mybatis.MyBatisNoticeDao" />
-	<bean class="com.newlecture.webapp.dao.mybatis.MyBatisNoticeFileDao" />
+   <tx:annotation-driven transaction-manager="transactionManager" />
+   
+   <!-- 데이터베이스 연결 집중화 -->
+   <bean name="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+      <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+      <property name="url" value="jdbc:mysql://211.238.142.247/newlecture?autoReconnect=true&amp;useSSL=false&amp;useUnicode=true&amp;characterEncoding=utf8"/>
+      <property name="username" value="sist"/>
+      <property name="password" value="cclass" />
+   </bean>
+   
+   <!-- springDao-->
+   <bean name="template" class="org.springframework.jdbc.core.JdbcTemplate" >
+      <property name="dataSource" ref="dataSource"/>
+   </bean>
+     
+   <!-- Transaction 처리 방법 1 - 4번 방법 Annotation에서 재료로 사용 -->
+   <bean name="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+      <property name="dataSource" ref="dataSource"/>
+   </bean><!-- dataSource를 관리  -> dataSource를 넘겨받는다. -> dataSource를 가로챈다. -->
+     
+   <!-- Transaction 처리 방법 2 -->
+   <!-- <bean name="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+      <property name="transactionManager" ref="transactionManager"/>
+   </bean> -->
+   
+   <!-- Transaction 처리 방법 3 - AOP 이용하기-->
+  <!--  <bean name="transactionInterceptor" class="org.springframework.transaction.interceptor.TransactionInterceptor">
+      <property name="transactionManager" ref="transactionManager"></property>
+      <property name="transactionAttributes"> 
+         <props>
+            <prop key="insert">PROPAGATION_REQUIRED 적용될 수 있는 메서드 목록
+            </prop>
+         </props>
+      </property>
+   </bean>
+   
+   <bean class="org.springframework.aop.framework.ProxyFactoryBean">
+      <property name="target" ref="noticeDao"/> dao가 가지고있는 모든 메소드에 transaction이 걸린다.
+      <property name="interceptorNames">
+         <list>
+            <value>transactionInterceptor</value>
+         </list>
+      </property>
+   </bean> -->
+   
+    <!-- Transaction 처리 방법 4 - AOP 이용하기-->
+   <bean name="transactionInterceptor" class="org.springframework.transaction.interceptor.TransactionInterceptor">
+      <property name="transactionManager" ref="transactionManager"></property>
+      <property name="transactionAttributes"> 
+         <props>
+            <prop key="insert">PROPAGATION_REQUIRED <!-- 적용될 수 있는 메서드 목록 -->
+            </prop>
+         </props>
+      </property>
+   </bean>
+   
+   <bean class="org.springframework.aop.framework.ProxyFactoryBean">
+      <property name="target" ref="noticeDao"/><!--  dao가 가지고있는 모든 메소드에 transaction이 걸린다. -->
+      <property name="interceptorNames">
+         <list>
+            <value>transactionInterceptor</value>
+         </list>
+      </property>
+   </bean>
 
-<context:annotation-config />
+   <!-- myBatis-->
+   <bean name="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean" >
+      <property name="dataSource" ref="dataSource" />
+      <property name="mapperLocations" 
+         value="classpath:com/newlecture/webapp/dao/mybatis/mapper/*.xml" /> <!-- mybatis가 관리하는  mapper container에 담아줌 -->
+   </bean>
+   
+   <bean class="org.mybatis.spring.SqlSessionTemplate">   <!-- container에서 하나씩 꺼내옴 -->
+      <constructor-arg index="0" ref="sqlSessionFactory" />
+   </bean>
+
+   <!--  DAO 객체들-->
+   <bean name="noticeDao" class="com.newlecture.webapp.dao.spring.SpringNoticeDao">
+      <!-- <property name="template" ref="template"></property> -->
+   </bean>
+   <bean class="com.newlecture.webapp.dao.spring.SpringMemberDao"/>
+   <bean class="com.newlecture.webapp.dao.mybatis.MyBatisNoticeFileDao" />
+   
+   <!-- service 객체들 -->
+   <bean class="com.newlecture.webapp.service.admin.BoardService" />
+   
+   <!--<bean class="com.newlecture.webapp.dao.mybatis.MyBatisNoticeDao" />
+   <bean class="com.newlecture.webapp.dao.mybatis.MyBatisNoticeFileDao" /> -->
+   
+<context:annotation-config />               
+
 </beans>

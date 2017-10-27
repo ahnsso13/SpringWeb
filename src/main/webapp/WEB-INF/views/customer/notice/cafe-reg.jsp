@@ -7,11 +7,10 @@
 <title>Insert title here</title>
 </head>
 <body>
-	<h1>등록 페이지</h1>
-	<!--enctype 인코딩타입을 변경한다  -->
-	<form action="?${_csrf.parameterName}=${_csrf.token}" method="post" enctype="multipart/form-data">
+	<h1>이용방법 등록</h1>
+	<form action="notice-reg" method="post" enctype="multipart/form-data">
 		<fieldset>
-			<legend>공지사항 수정정보 필드</legend>
+			<legend>수정 필드</legend>
 			<table border="1">
 				<tbody>
 					<tr>
@@ -22,10 +21,7 @@
 						<td>첨부파일</td>
 						<td><input type="file" name="file" /></td>
 					</tr>
-				<!-- 	<tr>
-						<td>첨부파일</td>
-						<td><input type="file" name="file" /></td>
-					</tr> -->
+
 					<tr>
 						<td colspan="2"><textarea name="content" rows="20" cols="60">${n.content}</textarea>
 
@@ -34,9 +30,8 @@
 				</tbody>
 			</table>
 			<div>
-				<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 				<input type="submit" value="등록" />
-				<a href="notice">취소</a>				
+				<a href="board">취소</a>				
 			</div>
 		</fieldset>
 	</form>

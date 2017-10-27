@@ -10,5 +10,7 @@ public interface MemberDao {
 	int insert(Member member);
 
 	Member get(String id);	
+	
+	int pointUp(String id);  
 
 }

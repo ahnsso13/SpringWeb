@@ -347,18 +347,51 @@ window.addEventListener("load", function() {
 	   var cloneButton = document.querySelector("#ex2-clone input[value='단순복제']");
 	   var ajaxButton = document.querySelector("#ex2-clone input[value='Ajax요청']");
 	   var tbody = document.querySelector("#ex2-clone tbody");
-		var template = document.querySelector("#ex2-clone template");   	   
+		var template = document.querySelector("#ex2-clone template");   
+		var container = document.querySelector("#ex2-clone div:first-child");
 	   
-		var data = [{id:"1", title:"2", writerId:"3"},{id :"4", title:"5", writerId:"6"},{id : "7", title:"8", writerId:"9"}];
+		var data = [{id:"1", title:"2", writerId:"3"}, 
+			        {id :"4", title:"5", writerId:"6"}, 
+			        {id : "7", title:"8", writerId:"9"}];
 		   
 		   ajaxButton.onclick = function(e){
-			var xhr = new XMLHttpRequest();
-			   
-		   }
-		   
+			    /* 동기형으로 문서를 요청한 방식  */
+				/* var xhr = new XMLHttpRequest();
+				xhr.open("GET", "../../customer/notice-ajax", false);  //요청 종류, 경로, 동기.비동기  open:요청하기 위한 설정
+				xhr.send();   //요청
+				//alert(xhr.responseText);
+				data = eval(xhr.responseText); */  //eval 요청을 하고 나면 데이터베이스에 들어있는 내용이 붙여넣기된다.
+				
+				/* 비동기형으로 문서를 요청한 방식  */
+			    var xhr = new XMLHttpRequest();
+				/* xhr.onreadystatechange = function(e){
+					if(xhr.readyState == 4)
+						data = eval(xhr.responseText);
+				}; */
+				xhr.onload = function(){
+					data = JSON.parse(xhr.responseText);
+					//2. ajax icon 제거
+					container.removeChild(container.lastChild);
+					
+				};
+				xhr.onerror = function(e){
+					alert("예기치 못한 오류가 발생하였습니다.");
+				};
+				xhr.open("GET", "../../customer/notice-ajax", true);  //요청 종류, 경로, 동기.비동기  open:요청하기 위한 설정
+				xhr.send();   //요청   -여기서 이미지 노드 추가
+				
+				//1. ajax icon 추가
+				var img = document.createElement("img");
+				img.src = "../images/ajax-loader.gif"
+				container.appendChild(img);
+				
+		   } //비동기: 순서를 따져야 하는 어려움이 있다. 데이터가 도착했을 때 사용되게 해야한다. --> onreadyStateChange
+		     //상태 0-4 --> 4번 상태: 
+		     //상태가 바뀌면 위임받은 것을 호출.
+		     //클릭할 때마다 백그라운드로 돌아감 > 사용자는 알 수 없으므로 계속 클릭할 수 있다.
 		   
 	   cloneButton.onclick = function(e){
-	/*  tempalte가 가지고 있는 내용은 content가 둘러싸고 있어야 하기땀시 content가 있으면 tempalte가 지원이 된다는 무 ㅓ그런이야기? */
+	/*  tempalte가 가지고 있는 내용은 content가 둘러싸고 있어야 하기 때문에 content가 있으면 tempalte가 지원이 된다는 무 ㅓ그런이야기? */
 	   if('content' in template){
 					   
 		  /*  //tempalte의 content에 값을 설정
@@ -468,7 +501,7 @@ window.addEventListener("load", function() {
 			value="전송" /> <a href="">취소</a>
 	</form>
 	<hr />
-	<!-- ---------------------노드 바꾸기 예제222 + 이벤트 심화 : 버블링과 캠처링---------------------------------->
+	<!-- ---------------------노드 바꾸기 예제222 + 이벤트 심화 : 버블링과 캡처링---------------------------------->
 	<input id="move-up-button" type="button" value="위로 옮기기">
 	<div id="move-up-container">
 		<table border="1">

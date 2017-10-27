@@ -53,9 +53,7 @@ public class MyBatisNoticeDao implements NoticeDao {
 	public NoticeView getNext(String id) {
 		NoticeDao noticeDao = sqlSession.getMapper(NoticeDao.class);		
 		NoticeView result = noticeDao.getNext(id);
-		
-		
-		
+
 		return result;
 	}
 

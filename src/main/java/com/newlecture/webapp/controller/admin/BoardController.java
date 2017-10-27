@@ -5,7 +5,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.Principal;
 import java.util.Calendar;
+import java.util.List;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -19,20 +21,29 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.newlecture.webapp.dao.MemberDao;
 import com.newlecture.webapp.dao.NoticeDao;
 import com.newlecture.webapp.dao.NoticeFileDao;
 import com.newlecture.webapp.entity.Notice;
 import com.newlecture.webapp.entity.NoticeFile;
+import com.newlecture.webapp.entity.NoticeView;
+import com.newlecture.webapp.service.admin.BoardService;
 
 @Controller
 @RequestMapping("/admin/board/*")
 public class BoardController {
 	
-	@Autowired
+	/*@Autowired
 	private NoticeDao noticeDao;
 
 	@Autowired
 	private NoticeFileDao noticeFileDao;
+	
+	@Autowired
+	private MemberDao memberDao;*/
+	
+	@Autowired
+	private BoardService service;
 
 	@RequestMapping("notice")
 	public String notice(
@@ -41,10 +52,10 @@ public class BoardController {
 			@RequestParam(value="q", defaultValue="") String query,
 			Model model) {
 		
-		/*List<NoticeView> list = noticeDao.getList(page, field, query);		
-		model.addAttribute("list", list);*/		
+		List<NoticeView> list = service.getNoticeList();		
+		model.addAttribute("list", list);	
 		
-		model.addAttribute("list", noticeDao.getList(page, field, query));
+		//model.addAttribute("list", noticeDao.getList(page, field, query));
 		
 		//String output = String.format("p:%s, q:%s", page, query);
 		//output += String.format("title : %s\n", list.get(0).getTitle());
@@ -58,9 +69,9 @@ public class BoardController {
 				@PathVariable("id") String id,
 				Model model) {
 		
-		model.addAttribute("n", noticeDao.get(id));
-		model.addAttribute("prev", noticeDao.getPrev(id));
-		model.addAttribute("next", noticeDao.getNext(id));
+		model.addAttribute("n", service.getNotice(id));
+		model.addAttribute("prev", service.getNoticePrev(id));
+		model.addAttribute("next", service.getNoticeNext(id));
 		
 		return "admin.board.notice.detail";
 	}
@@ -72,9 +83,9 @@ public class BoardController {
 	}
 	
 	@RequestMapping(value="notice/reg", method=RequestMethod.POST)
-	public String noticeReg(Notice notice, String aa, MultipartFile file, HttpServletRequest request) throws IOException {
-		
-		
+	public String noticeReg(Notice notice, String aa, MultipartFile file, HttpServletRequest request,
+			Principal principal) 
+			throws IOException {
 		
 		// 날짜 얻기1
 		//Date curDate = new Date();
@@ -91,7 +102,7 @@ public class BoardController {
 		
 		//file.getInputStream();
 		
-		String nextId = noticeDao.getNextId();
+		String nextId = service.getNextId();
 		
 		ServletContext ctx = request.getServletContext();
 		String path = ctx.getRealPath(
@@ -134,10 +145,13 @@ public class BoardController {
 		
 		notice.setWriterId(writerId);	
 		//int row = noticeDao.insert(title, content, writerId);
-		int row = noticeDao.insert(notice);
-		noticeFileDao.insert(new NoticeFile(null, fileName, nextId));
 		
-		
+		//업무명
+		int row = service.insertAndPointUp(notice);
+		//noticeFileDao.insert(new NoticeFile(null, fileName, nextId));
+		//memberDao.pointUp(principal.getName());	//서비스 부분에 같이 넣어주기
+		//로그인이 된 상태에서 확인, 위의 작업과 이 작업 두 가지가 동시에 일어나야 한다.
+
 		
 		return "redirect:../notice";
 	}

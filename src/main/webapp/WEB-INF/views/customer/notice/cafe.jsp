@@ -1,15 +1,14 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <main class="main">
 		
-			<h2 class="main title">공지사항</h2>
+			<h2 class="main title">카페 이용방법</h2>
 			
 			<div class="breadcrumb">
-				<h3 class="hidden">경로</h3>
+				<h3 class="hidden">이용 방법</h3>
 				<ul>
 					<li>home</li>
 					<li>고객센터</li>
@@ -18,10 +17,10 @@
 			</div>
 			
 			<div class="search-form margin-top first align-right">
-				<h3 class="hidden">공지사항 검색폼</h3>
+				<h3 class="hidden">검색폼</h3>
 				<form class="table-form">
 					<fieldset>
-						<legend class="hidden">공지사항 검색 필드</legend>
+						<legend class="hidden">검색 필드</legend>
 						<label class="hidden">검색분류</label> 
 						<select name="t">
 							<option selected="selected" value="TITLE">제목</option>
@@ -35,11 +34,12 @@
 			</div>
 						
 			<div class="notice margin-top">
-				<h3 class="hidden">공지사항 목록</h3>
+				<h3 class="hidden">이용방법 목록</h3>
 				<table class="table">
 					<thead>
 						<tr>
 							<th class="w60">번호</th>
+							<th class="w60">카페</th>
 							<th class="expand">제목</th>
 							<th class="w100">작성자</th>
 							<th class="w100">작성일</th>
@@ -49,13 +49,14 @@
 					<tbody>
 					<c:forEach var="n" items="${list}">					
 					<tr>
-						<td>${n.id}</td>
+						<td>${n.num}</td>
+						<td>${n.cname}</td>
 						<td class="title indent"><a href="notice/${n.id}">${n.title}</a></td>
-						<td>newlec</td>
+						<td>${n.writerId}</td>
 						<td>
 							<fmt:formatDate pattern="yyyy-MM-dd" value="${n.regDate}"/>		
 						</td>
-						<td>12</td>
+						<td>${hit}</td>
 					</tr>
 					</c:forEach>
 					</tbody>
